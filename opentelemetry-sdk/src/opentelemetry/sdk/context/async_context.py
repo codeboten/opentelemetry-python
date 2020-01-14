@@ -12,34 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-try:
-    from contextvars import ContextVar
-except ImportError:
-    pass
-else:
-    import typing  # pylint: disable=unused-import
-    from . import base_context
+from contextvars import ContextVar, get_context
 
-    class AsyncRuntimeContext(base_context.BaseContext):
-        class Slot(base_context.BaseContext.Slot):
-            def __init__(self, name: str, default: object):
-                # pylint: disable=super-init-not-called
-                self.name = name
-                self.contextvar = ContextVar(name)  # type: ContextVar[object]
-                self.default = base_context.wrap_callable(
-                    default
-                )  # type: typing.Callable[..., object]
+from opentelemetry.context.base_context import BaseContext
 
-            def clear(self) -> None:
-                self.contextvar.set(self.default())
 
-            def get(self) -> object:
-                try:
-                    return self.contextvar.get()
-                except LookupError:
-                    value = self.default()
-                    self.set(value)
-                    return value
+class AsyncRuntimeContext(BaseContext):
 
-            def set(self, value: object) -> None:
-                self.contextvar.set(value)
+    def __init__(self, name: str, default: "object"):
+        super(AsyncRuntimeContext).__init__(name, default)
+
+        self._context = get_context()
+
+    def clear(self) -> None:
+        for key in [key for key in self._thread_local.__dict__.keys()]:
+            self._thread_local.__delattr__(key)
+
+        setattr(self._thread_local, self.name, self.default())
+
+    def get_value(self, name: "str") -> "object":
+        try:
+            return getattr(self._thread_local, name)
+
+        except AttributeError:
+            # FIXME This is a quite obscure behavior that can easily cause
+            # significant confusion to an user.
+            self.set_value(name, self._default)
+            return self._default
+
+    def set_value(self, name, value: "object") -> None:
+        # FIXME Finish this method
+
+        ContextVar
+        setattr(self._thread_local, name, value)
+
+
+__all__ = ["AsyncRuntimeContext"]

@@ -138,6 +138,8 @@ Here goes a simple demo of how async could work in Python 3.7+::
         asyncio.run(main())
 """
 
+# Include an example of thread local failing when used with asyncio
+
 from pkg_resources import iter_entry_points
 
 from .base_context import BaseContext

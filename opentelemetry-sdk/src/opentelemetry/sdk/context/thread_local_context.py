@@ -12,23 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import threading
+from threading import local
 
 from opentelemetry.context.base_context import BaseContext
 
 
 class ThreadLocalRuntimeContext(BaseContext):
 
-    _default = None
-
     def __init__(self, name: str, default: "object"):
         super(ThreadLocalRuntimeContext).__init__(name, default)
 
-        self._thread_local = threading.local()
+        self._thread_local = local()
 
     def clear(self) -> None:
-        # FIXME iterate through all the thread_local attributes and set them
-        # to the default value
+        for key in [key for key in self._thread_local.__dict__.keys()]:
+            self._thread_local.__delattr__(key)
+
         setattr(self._thread_local, self.name, self.default())
 
     def get_value(self, name: "str") -> "object":
@@ -36,6 +35,8 @@ class ThreadLocalRuntimeContext(BaseContext):
             return getattr(self._thread_local, name)
 
         except AttributeError:
+            # FIXME This is a quite obscure behavior that can easily cause
+            # significant confusion to an user.
             self.set_value(name, self._default)
             return self._default
 
