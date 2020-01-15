@@ -138,34 +138,38 @@ Here goes a simple demo of how async could work in Python 3.7+::
         asyncio.run(main())
 """
 
-import typing
-from contextlib import contextmanager
+from pkg_resources import iter_entry_points
 
-from .base_context import Context
+from .base_context import BaseContext
+
+for entry_point in iter_entry_points("opentelemetry_context"):
+    # FIXME take into consideration that a more sophisticated
+    # decision-making process is needed here. For example, a context may be
+    # chosen depending on the version of the current Python interpreter.
+    _CONTEXT = entry_point.load()()
+    break
 
 
-def current() -> Context:
-    return _CONTEXT.current()
+def get_value(context: "BaseContext", key: str) -> "object":
+    return context.get_value(key)
 
 
-def new_context() -> Context:
-    try:
-        from .async_context import (  # pylint: disable=import-outside-toplevel
-            AsyncRuntimeContext,
-        )
-
-        context = AsyncRuntimeContext()  # type: Context
-    except ImportError:
-        from .thread_local_context import (  # pylint: disable=import-outside-toplevel
-            ThreadLocalRuntimeContext,
-        )
-
-        context = ThreadLocalRuntimeContext()  # type: Context
+def set_value(
+    context: "BaseContext", key: str, value: "object"
+) -> "BaseContext":
+    context.set_value(key, value)
     return context
 
 
-def merge_context_correlation(source: Context, dest: Context) -> Context:
-    return dest.merge(source)
+def get_current() -> "BaseContext":
+    return _CONTEXT
 
 
-_CONTEXT = new_context()
+def set_current(context: "BaseContext"):
+    # FIXME This implementation is probably too naive. Ask Alex about the
+    # importance/meaning of "current" for this operation.
+    global _CONTEXT
+    _CONTEXT = context
+
+
+__all__ = ["get_value", "set_value", "get_current", "set_current"]
