@@ -56,4 +56,9 @@ setuptools.setup(
         "/tree/master/opentelemetry-api"
     ),
     zip_safe=False,
+    entry_points={
+        "opentelemetry_context": [
+            "no_op_context = opentelemetry.context.no_op_context:NoOpContext"
+        ]
+    },
 )

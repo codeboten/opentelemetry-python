@@ -138,18 +138,20 @@ Here goes a simple demo of how async could work in Python 3.7+::
         asyncio.run(main())
 """
 
-# Include an example of thread local failing when used with asyncio
 
 from pkg_resources import iter_entry_points
+from os import environ
 
 from .base_context import BaseContext
 
-for entry_point in iter_entry_points("opentelemetry_context"):
-    # FIXME take into consideration that a more sophisticated
-    # decision-making process is needed here. For example, a context may be
-    # chosen depending on the version of the current Python interpreter.
-    _CONTEXT = entry_point.load()()
-    break
+
+# FIXME use a better implementation of a configuration manager to avoid having
+# to get configuration values straight from environment variables
+_CONTEXT = {
+    entry_point.name: entry_point.load() for entry_point in (
+        iter_entry_points("opentelemetry_context")
+    )
+}[environ.get("OPENTELEMETRY_CONTEXT", "contextvar")]
 
 
 def get_value(context: "BaseContext", key: str) -> "object":

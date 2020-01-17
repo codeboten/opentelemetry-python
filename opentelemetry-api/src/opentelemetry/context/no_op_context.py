@@ -13,16 +13,17 @@
 # limitations under the License.
 
 from typing import Optional
-from abc import ABC, abstractmethod
+
+from opentelemetry.context.base_context import BaseContext
 
 
-class BaseContext(ABC):
+class NoOpContext(BaseContext):
 
-    @abstractmethod
     def set(self, key: str, value: Optional["object"]) -> "BaseContext":
         """Set a value in this context"""
 
-    @abstractmethod
+        return self
+
     def get(self, key: str) -> Optional["object"]:
         """Get a value from this context"""
 
