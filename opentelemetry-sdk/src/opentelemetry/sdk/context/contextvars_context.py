@@ -12,23 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from threading import local
+from contextvars import ContextVar, get_context
 
 from opentelemetry.context.base_context import BaseContext
 
 
-class ThreadLocalRuntimeContext(BaseContext):
+class ContextVarsContext(BaseContext):
 
-    def __init__(self, name: str, default: "object"):
-        super(ThreadLocalRuntimeContext).__init__(name, default)
+    def __init__(self):
+        super(ContextVarsContext).__init__(name, default)
 
-        self._thread_local = local()
+        self._context = get_context()
 
-    def clear(self) -> None:
-        for key in [key for key in self._thread_local.__dict__.keys()]:
-            self._thread_local.__delattr__(key)
+    @abstractmethod
+    def set(self, key: str, value: Optional["object"]) -> "BaseContext":
+        """Set a value in this context"""
 
-        setattr(self._thread_local, self.name, self.default())
+    @abstractmethod
+    def get(self, key: str) -> Optional["object"]:
+        """Get a value from this context"""
 
     def get_value(self, name: "str") -> "object":
         try:
@@ -41,7 +43,10 @@ class ThreadLocalRuntimeContext(BaseContext):
             return self._default
 
     def set_value(self, name, value: "object") -> None:
+        # FIXME Finish this method
+
+        ContextVar
         setattr(self._thread_local, name, value)
 
 
-__all__ = ["ThreadLocalRuntimeContext"]
+__all__ = ["AsyncRuntimeContext"]

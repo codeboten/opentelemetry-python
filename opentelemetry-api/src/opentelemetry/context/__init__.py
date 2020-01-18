@@ -151,7 +151,7 @@ _CONTEXT = {
     entry_point.name: entry_point.load() for entry_point in (
         iter_entry_points("opentelemetry_context")
     )
-}[environ.get("OPENTELEMETRY_CONTEXT", "contextvar")]
+}[environ.get("OPENTELEMETRY_CONTEXT", "contextvars")]
 
 
 def get_value(context: "BaseContext", key: str) -> "object":
