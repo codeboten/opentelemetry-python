@@ -16,6 +16,7 @@ from unittest import TestCase
 from asyncio import gather, get_event_loop, sleep as asyncio_sleep
 from time import sleep
 from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 
 from opentelemetry.sdk.context import ContextVarsContext
 
@@ -83,5 +84,34 @@ class TestContextVarsContext(TestCase):
 
             for thread in threads:
                 thread.join()
+
+        run_waiting()
+
+    def test_futures(self):
+
+        contextvars_context = ContextVarsContext()
+
+        def waiting(thread_pool_name, first_sleep, second_sleep):
+
+            sleep(first_sleep)
+
+            contextvars_context.set("thread_pool_name", thread_pool_name)
+
+            self.assertEqual(thread_pool_name, contextvars_context.get())
+
+            sleep(second_sleep)
+
+            self.assertEqual(thread_pool_name, contextvars_context.get())
+
+        def run_waiting():
+
+            with ThreadPoolExecutor(max_workers=5) as executor:
+
+                for thread_pool_name, first_sleep, second_sleep in [
+                    ["A", 0, 1], ["B", 0.1, 3], ["C", 2, 1]
+                ]:
+                    executor.submit(
+                        waiting, thread_pool_name, first_sleep, second_sleep
+                    )
 
         run_waiting()
