@@ -22,7 +22,7 @@ from types import TracebackType
 from typing import Iterator, Optional, Sequence, Tuple, Type
 
 from opentelemetry import trace as trace_api
-from opentelemetry.context import Context, current
+from opentelemetry.context.base_context import BaseContext
 from opentelemetry.sdk import util
 from opentelemetry.sdk.util import BoundedDict, BoundedList
 from opentelemetry.trace import SpanContext, sampling
@@ -73,7 +73,8 @@ class SpanProcessor:
         """
 
     def shutdown(self) -> None:
-        """Called when a :class:`opentelemetry.sdk.trace.Tracer` is shutdown."""
+        """Called when a :class:`opentelemetry.sdk.trace.Tracer` is shutdown.
+        """
 
 
 class MultiSpanProcessor(SpanProcessor):
@@ -392,7 +393,7 @@ class Tracer(trace_api.Tracer):
         self.source = source
         self.instrumentation_info = instrumentation_info
 
-    def get_current_span(self, context: Optional[Context] = None):
+    def get_current_span(self, context: Optional[BaseContext] = None):
         """See `opentelemetry.trace.Tracer.get_current_span`."""
         return span_from_context(context=context)
 
@@ -403,7 +404,7 @@ class Tracer(trace_api.Tracer):
         kind: trace_api.SpanKind = trace_api.SpanKind.INTERNAL,
         attributes: Optional[types.Attributes] = None,
         links: Sequence[trace_api.Link] = (),
-        context: Optional[Context] = None,
+        context: Optional[BaseContext] = None,
     ) -> Iterator[trace_api.Span]:
         """See `opentelemetry.trace.Tracer.start_as_current_span`."""
 
@@ -421,7 +422,7 @@ class Tracer(trace_api.Tracer):
         links: Sequence[trace_api.Link] = (),
         start_time: Optional[int] = None,
         set_status_on_exception: bool = True,
-        context: Optional[Context] = None,
+        context: Optional[BaseContext] = None,
     ) -> trace_api.Span:
         """See `opentelemetry.trace.Tracer.start_span`."""
 
@@ -481,7 +482,7 @@ class Tracer(trace_api.Tracer):
                 parent=parent,
                 sampler=self.source.sampler,
                 attributes=span_attributes,
-                span_processor=self.source._active_span_processor,  # pylint:disable=protected-access
+                span_processor=self.source._active_span_processor,  # pylint:disable=protected-access  # noqa
                 kind=kind,
                 links=links,
                 instrumentation_info=self.instrumentation_info,
@@ -516,7 +517,8 @@ class TracerSource(trace_api.TracerSource):
         sampler: sampling.Sampler = trace_api.sampling.ALWAYS_ON,
         shutdown_on_exit: bool = True,
     ):
-        # TODO: How should multiple TracerSources behave? Should they get their own contexts?
+        # TODO: How should multiple TracerSources behave? Should they get their
+        # own contexts?
         # This could be done by adding `str(id(self))` to the slot name.
         self._current_span_name = "current_span"
         self._active_span_processor = MultiSpanProcessor()
@@ -540,9 +542,9 @@ class TracerSource(trace_api.TracerSource):
             ),
         )
 
-    def get_current_span(self, context: Optional[Context] = None) -> Span:
+    def get_current_span(self, context: Optional[BaseContext] = None) -> Span:
         """See `opentelemetry.trace.Tracer.get_current_span`."""
-        return current().value(self._current_span_name, context=context)
+        return BaseContext.value(self._current_span_name, context=context)
 
     def add_span_processor(self, span_processor: SpanProcessor) -> None:
         """Registers a new :class:`SpanProcessor` for this `TracerSource`.

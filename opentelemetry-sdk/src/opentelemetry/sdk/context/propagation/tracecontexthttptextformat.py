@@ -16,11 +16,11 @@ import re
 import typing
 
 import opentelemetry.trace as trace
-from opentelemetry.context import Context
-from opentelemetry.propagation import (
-    Extractor,
+from opentelemetry.context.base_context import BaseContext
+from opentelemetry.context.propagation import (
     Getter,
     Injector,
+    Extractor,
     Setter,
     get_as_list,
     set_in_dict,
@@ -82,9 +82,9 @@ class TraceContextHTTPExtractor(Extractor):
     def extract(
         cls,
         carrier: _T,
-        context: typing.Optional[Context] = None,
+        context: typing.Optional[BaseContext] = None,
         get_from_carrier: typing.Optional[Getter[_T]] = get_as_list,
-    ) -> Context:
+    ) -> BaseContext:
         """Extracts a valid SpanContext from the carrier.
         """
         header = get_from_carrier(carrier, TRACEPARENT_HEADER_NAME)
@@ -131,7 +131,7 @@ class TraceContextHTTPInjector(Injector):
     def inject(
         cls,
         carrier: _T,
-        context: typing.Optional[Context] = None,
+        context: typing.Optional[BaseContext] = None,
         set_in_carrier: typing.Optional[Setter[_T]] = set_in_dict,
     ) -> None:
         sc = span_context_from_context(context)

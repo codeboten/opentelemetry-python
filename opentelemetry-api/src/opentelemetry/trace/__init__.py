@@ -71,7 +71,7 @@ import types as python_types
 import typing
 from contextlib import contextmanager
 
-from opentelemetry.context import Context
+from opentelemetry.context.base_context import BaseContext
 from opentelemetry.trace.status import Status
 from opentelemetry.util import loader, types
 
@@ -395,14 +395,15 @@ class TracerSource:
                 (usually just ``__name__``).
 
                 This should *not* be the name of the module that is
-                instrumented but the name of the module doing the instrumentation.
+                instrumented but the name of the module doing the
+                instrumentation.
                 E.g., instead of ``"requests"``, use
                 ``"opentelemetry.ext.http_requests"``.
 
             instrumenting_library_version: Optional. The version string of the
                 instrumenting library.  Usually this should be the same as
                 ``pkg_resources.get_distribution(instrumenting_library_name).version``.
-        """
+        """  # noqa
         return Tracer()
 
 
@@ -418,7 +419,7 @@ class Tracer:
     CURRENT_SPAN = Span()
 
     def get_current_span(
-        self, context: typing.Optional[Context] = None
+        self, context: typing.Optional[BaseContext] = None
     ) -> "Span":
         """Gets the currently active span from the context.
 
@@ -441,7 +442,7 @@ class Tracer:
         links: typing.Sequence[Link] = (),
         start_time: typing.Optional[int] = None,
         set_status_on_exception: bool = True,
-        context: typing.Optional[Context] = None,
+        context: typing.Optional[BaseContext] = None,
     ) -> "Span":
         """Starts a span.
 
@@ -493,7 +494,7 @@ class Tracer:
         kind: SpanKind = SpanKind.INTERNAL,
         attributes: typing.Optional[types.Attributes] = None,
         links: typing.Sequence[Link] = (),
-        context: typing.Optional[Context] = None,
+        context: typing.Optional[BaseContext] = None,
     ) -> typing.Iterator["Span"]:
         """Context manager for creating a new span and set it
         as the current span in this tracer's context.
@@ -577,7 +578,7 @@ def tracer_source() -> TracerSource:
 
     If there isn't one set yet, a default will be loaded.
     """
-    global _TRACER_SOURCE, _TRACER_SOURCE_FACTORY  # pylint:disable=global-statement
+    global _TRACER_SOURCE, _TRACER_SOURCE_FACTORY  # pylint:disable=global-statement  # noqa
 
     if _TRACER_SOURCE is None:
         # pylint:disable=protected-access

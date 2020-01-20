@@ -16,7 +16,6 @@ import typing
 import unittest
 
 from opentelemetry import trace
-from opentelemetry.context import current
 from opentelemetry.sdk.context.propagation.tracecontexthttptextformat import (
     TraceContextHTTPExtractor,
     TraceContextHTTPInjector,
@@ -24,6 +23,7 @@ from opentelemetry.sdk.context.propagation.tracecontexthttptextformat import (
 from opentelemetry.trace.propagation.context import (
     span_context_from_context,
     with_span_context,
+    current
 )
 
 INJECT = TraceContextHTTPInjector
@@ -43,7 +43,8 @@ class TestTraceContextFormat(unittest.TestCase):
 
         RFC 4.2.2:
 
-        If no traceparent header is received, the vendor creates a new trace-id and parent-id that represents the current request.
+        If no traceparent header is received, the vendor creates a new
+        trace-id and parent-id that represents the current request.
         """
         output = {}  # type:typing.Dict[str, typing.List[str]]
         span_context = span_context_from_context(
@@ -90,19 +91,23 @@ class TestTraceContextFormat(unittest.TestCase):
 
         RFC 3.2.2.3
 
-        If the trace-id value is invalid (for example if it contains non-allowed characters or all
-        zeros), vendors MUST ignore the traceparent.
+        If the trace-id value is invalid (for example if it contains
+        non-allowed characters or all zeros), vendors MUST ignore the
+        traceparent.
 
         RFC 3.3
 
-        If the vendor failed to parse traceparent, it MUST NOT attempt to parse tracestate.
-        Note that the opposite is not true: failure to parse tracestate MUST NOT affect the parsing of traceparent.
+        If the vendor failed to parse traceparent, it MUST NOT attempt to parse
+        tracestate.
+        Note that the opposite is not true: failure to parse tracestate MUST
+        NOT affect the parsing of traceparent.
         """
         span_context = span_context_from_context(
             EXTRACT.extract(
                 {
                     "traceparent": [
-                        "00-00000000000000000000000000000000-1234567890123456-00"
+                        "00-00000000000000000000000000000000-"
+                        "1234567890123456-00"
                     ],
                     "tracestate": ["foo=1,bar=2,foo=3"],
                 },
@@ -118,19 +123,22 @@ class TestTraceContextFormat(unittest.TestCase):
 
         RFC 3.2.2.3
 
-        Vendors MUST ignore the traceparent when the parent-id is invalid (for example,
-        if it contains non-lowercase hex characters).
+        Vendors MUST ignore the traceparent when the parent-id is invalid (for
+        example, if it contains non-lowercase hex characters).
 
         RFC 3.3
 
-        If the vendor failed to parse traceparent, it MUST NOT attempt to parse tracestate.
-        Note that the opposite is not true: failure to parse tracestate MUST NOT affect the parsing of traceparent.
+        If the vendor failed to parse traceparent, it MUST NOT attempt to parse
+        tracestate.
+        Note that the opposite is not true: failure to parse tracestate MUST
+        NOT affect the parsing of traceparent.
         """
         span_context = span_context_from_context(
             EXTRACT.extract(
                 {
                     "traceparent": [
-                        "00-00000000000000000000000000000000-0000000000000000-00"
+                        "00-00000000000000000000000000000000-"
+                        "0000000000000000-00"
                     ],
                     "tracestate": ["foo=1,bar=2,foo=3"],
                 },
@@ -144,8 +152,8 @@ class TestTraceContextFormat(unittest.TestCase):
 
         RFC 3.3.1.1
 
-        Empty and whitespace-only list members are allowed. Vendors MUST accept empty
-        tracestate headers but SHOULD avoid sending them.
+        Empty and whitespace-only list members are allowed. Vendors MUST accept
+        empty tracestate headers but SHOULD avoid sending them.
         """
         ctx = with_span_context(trace.SpanContext(self.TRACE_ID, self.SPAN_ID))
         output = {}  # type:typing.Dict[str, str]
@@ -167,7 +175,8 @@ class TestTraceContextFormat(unittest.TestCase):
             EXTRACT.extract(
                 {
                     "traceparent": [
-                        "00-12345678901234567890123456789012-1234567890123456-00-residue"
+                        "00-12345678901234567890123456789012-1234567890123456-"
+                        "00-residue"
                     ],
                     "tracestate": ["foo=1,bar=2,foo=3"],
                 },
@@ -185,12 +194,14 @@ class TestTraceContextFormat(unittest.TestCase):
         self.assertFalse("traceparent" in output)
 
     def test_tracestate_empty_header(self):
-        """Test tracestate with an additional empty header (should be ignored)"""
+        """Test tracestate with an additional empty header (should be ignored)
+        """
         span_context = span_context_from_context(
             EXTRACT.extract(
                 {
                     "traceparent": [
-                        "00-12345678901234567890123456789012-1234567890123456-00"
+                        "00-12345678901234567890123456789012-1234567890123456-"
+                        "00"
                     ],
                     "tracestate": ["foo=1", ""],
                 },
@@ -206,7 +217,8 @@ class TestTraceContextFormat(unittest.TestCase):
             EXTRACT.extract(
                 {
                     "traceparent": [
-                        "00-12345678901234567890123456789012-1234567890123456-00"
+                        "00-12345678901234567890123456789012-1234567890123456-"
+                        "00"
                     ],
                     "tracestate": ["foo=1,"],
                 },
