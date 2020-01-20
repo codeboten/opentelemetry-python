@@ -17,11 +17,8 @@ import contextvars
 import unittest
 from multiprocessing.dummy import Pool as ThreadPool
 
-from opentelemetry.context import (
-    current,
-    merge_context_correlation,
-    new_context,
-)
+from opentelemetry.context import current
+from opentelemetry.sdk.context.contextvars_context import ContextVarsContext
 from opentelemetry.sdk import trace
 from opentelemetry.sdk.trace import export
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
@@ -30,10 +27,10 @@ from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
 
 
 def do_work():
-    current().set_value("say-something", "bar")
+    ContextVarsContext.set_value("say-something", "bar")
 
 
-class TestContext(unittest.TestCase):
+class TestContextVarsContext(unittest.TestCase):
     spans = [
         "test_span1",
         "test_span2",
@@ -54,38 +51,41 @@ class TestContext(unittest.TestCase):
         self.tracer_source.add_span_processor(span_processor)
 
     def test_context(self):
-        self.assertIsNone(current().value("say-something"))
-        empty_context = current()
-        current().set_value("say-something", "foo")
-        self.assertEqual(current().value("say-something"), "foo")
-        second_context = current()
+        self.assertIsNone(ContextVarsContext.value("say-something"))
+        empty_context = ContextVarsContext.current()
+        ContextVarsContext.set_value("say-something", "foo")
+        self.assertEqual(ContextVarsContext.value("say-something"), "foo")
+        second_context = ContextVarsContext.current()
 
         do_work()
-        self.assertEqual(current().value("say-something"), "bar")
-        third_context = current()
+        self.assertEqual(ContextVarsContext.value("say-something"), "bar")
+        third_context = ContextVarsContext.current()
 
         self.assertIsNone(empty_context.get("say-something"))
         self.assertEqual(second_context.get("say-something"), "foo")
         self.assertEqual(third_context.get("say-something"), "bar")
 
     def test_merge(self):
-        current().set_value("name", "first")
-        current().set_value("somebool", True)
-        current().set_value("key", "value")
-        current().set_value("otherkey", "othervalue")
-        src_ctx = current()
+        ContextVarsContext.set_value("name", "first")
+        ContextVarsContext.set_value("somebool", True)
+        ContextVarsContext.set_value("key", "value")
+        ContextVarsContext.set_value("otherkey", "othervalue")
+        ContextVarsContext.current()
 
-        current().set_value("name", "second")
-        current().set_value("somebool", False)
-        current().set_value("anotherkey", "anothervalue")
-        dst_ctx = current()
+        ContextVarsContext.set_value("name", "second")
+        ContextVarsContext.set_value("somebool", False)
+        ContextVarsContext.set_value("anotherkey", "anothervalue")
+        ContextVarsContext.current()
 
-        current().set_current(merge_context_correlation(src_ctx, dst_ctx))
-        self.assertEqual(current().get("name"), "first")
-        self.assertTrue(current().get("somebool"))
-        self.assertEqual(current().get("key"), "value")
-        self.assertEqual(current().get("otherkey"), "othervalue")
-        self.assertEqual(current().get("anotherkey"), "anothervalue")
+        self.assertEqual(ContextVarsContext.current().get("name"), "first")
+        self.assertTrue(ContextVarsContext.current().get("somebool"))
+        self.assertEqual(ContextVarsContext.current().get("key"), "value")
+        self.assertEqual(
+            ContextVarsContext.current().get("otherkey"), "othervalue"
+        )
+        self.assertEqual(
+            ContextVarsContext.current().get("anotherkey"), "anothervalue"
+        )
 
     def test_propagation(self):
         pass
@@ -118,7 +118,8 @@ class TestContext(unittest.TestCase):
         with self.tracer.start_as_current_span("threads_test"):
             pool = ThreadPool(5)  # create a thread pool
             pool.map(
-                current().with_current_context(self.do_some_work), self.spans,
+                ContextVarsContext.with_current_context(self.do_some_work),
+                self.spans,
             )
             pool.close()
             pool.join()

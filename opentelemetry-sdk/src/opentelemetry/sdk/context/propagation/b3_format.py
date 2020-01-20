@@ -23,8 +23,8 @@ from opentelemetry.propagation import (
     get_as_list,
     set_in_dict,
 )
+from opentelemetry.context.base_context import BaseContext
 from opentelemetry.trace.propagation.context import (
-    Context,
     span_context_from_context,
     with_span_context,
 )
@@ -55,7 +55,7 @@ class B3Extractor(Extractor):
     def extract(
         cls,
         carrier,
-        context: typing.Optional[Context] = None,
+        context: typing.Optional[BaseContext] = None,
         get_from_carrier: typing.Optional[Getter[_T]] = get_as_list,
     ):
 
@@ -128,7 +128,7 @@ class B3Injector(Injector):
     def inject(
         cls,
         carrier,
-        context: typing.Optional[Context] = None,
+        context: typing.Optional[BaseContext] = None,
         set_in_carrier: typing.Optional[Setter[_T]] = set_in_dict,
     ):
         sc = span_context_from_context(context)

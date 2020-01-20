@@ -18,7 +18,7 @@ from time import sleep
 from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
 
-from opentelemetry.sdk.context import ContextVarsContext
+from opentelemetry.sdk.context.contextvars_context import ContextVarsContext
 
 
 class TestContextVarsContext(TestCase):
