@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Optional
 from contextvars import ContextVar, get_context
 
 from opentelemetry.context.base_context import BaseContext
@@ -19,34 +20,24 @@ from opentelemetry.context.base_context import BaseContext
 
 class ContextVarsContext(BaseContext):
 
-    def __init__(self):
-        super(ContextVarsContext).__init__(name, default)
+    _instance = None
 
-        self._context = get_context()
+    def __new__(cls):
+        if ContextVarContext._instance is None:
+            ContextVarContext._instance = object.__new__(cls)
 
-    @abstractmethod
+        return ContextVarContext._instance
+
     def set(self, key: str, value: Optional["object"]) -> "BaseContext":
         """Set a value in this context"""
+        contextvar = ContextVar(key)
+        contextvar.set(value)
+        setattr(self, f"_{key}", contextvar)
 
-    @abstractmethod
+
     def get(self, key: str) -> Optional["object"]:
         """Get a value from this context"""
-
-    def get_value(self, name: "str") -> "object":
-        try:
-            return getattr(self._thread_local, name)
-
-        except AttributeError:
-            # FIXME This is a quite obscure behavior that can easily cause
-            # significant confusion to an user.
-            self.set_value(name, self._default)
-            return self._default
-
-    def set_value(self, name, value: "object") -> None:
-        # FIXME Finish this method
-
-        ContextVar
-        setattr(self._thread_local, name, value)
+        return getattr(self, f"_{key}").get()
 
 
-__all__ = ["AsyncRuntimeContext"]
+__all__ = ["ContextVarsContext"]
