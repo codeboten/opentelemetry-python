@@ -14,6 +14,7 @@
 
 from typing import Optional
 from contextvars import ContextVar
+from sys import modules
 
 from opentelemetry.context.base_context import BaseContext
 
@@ -21,6 +22,7 @@ from opentelemetry.context.base_context import BaseContext
 class ContextVarsContext(BaseContext):
 
     _instance = None
+    _module = modules[__name__]
 
     def __new__(cls):
         if ContextVarsContext._instance is None:
@@ -32,11 +34,11 @@ class ContextVarsContext(BaseContext):
         """Set a value in this context"""
         contextvar = ContextVar(key)
         contextvar.set(value)
-        setattr(self, f"_{key}", contextvar)
+        setattr(self._module, f"_{key}", contextvar)
 
     def get(self, key: str) -> Optional["object"]:
         """Get a value from this context"""
-        return getattr(self, f"_{key}").get(key)
+        return getattr(self._module, f"_{key}").get(key)
 
 
 __all__ = ["ContextVarsContext"]
