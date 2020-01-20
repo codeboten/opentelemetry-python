@@ -15,10 +15,11 @@
 import itertools
 import string
 import typing
-from typing import Optional
 
-from opentelemetry.context import Context, current
-from opentelemetry.propagation import Extractor, Injector
+from opentelemetry.context.base_context import BaseContext
+from opentelemetry.context.propagation import HTTPExtractor, HTTPInjector
+
+from .propagation import CorrelationHTTPExtractor, CorrelationHTTPInjector
 
 PRINTABLE = frozenset(
     itertools.chain(
@@ -89,21 +90,23 @@ class CorrelationContext:
 
 class CorrelationContextManager:
     @classmethod
-    def set_correlation(
-        cls, key: str, value: "object", context: Optional[Context] = None
-    ) -> Context:
-        return current().set_value(key, value, context=context)
+    def set_correlation(cls, key: str, value: "object") -> BaseContext:
+        return BaseContext.set_value(key, value)
 
     @classmethod
     def correlation(
-        cls, key: str, context: Optional[Context] = None
+        cls, key: str, context: typing.Optional[BaseContext] = None
     ) -> "object":
-        return current().value(key, context=context)
+        return BaseContext.value(key, context=context)
 
     @classmethod
-    def remove_correlation(cls, context: Optional[Context] = None) -> Context:
+    def remove_correlation(cls) -> BaseContext:
         pass
 
     @classmethod
-    def clear_correlation(cls, context: Optional[Context] = None) -> Context:
+    def clear_correlation(cls) -> BaseContext:
         pass
+
+    @classmethod
+    def http_propagator(cls) -> typing.Tuple[HTTPExtractor, HTTPInjector]:
+        return (CorrelationHTTPExtractor, CorrelationHTTPInjector)  # type: ignore  # noqa
