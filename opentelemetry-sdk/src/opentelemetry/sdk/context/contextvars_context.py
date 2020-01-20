@@ -36,7 +36,7 @@ class ContextVarsContext(BaseContext):
 
     def get(self, key: str) -> Optional["object"]:
         """Get a value from this context"""
-        return getattr(self, f"_{key}").get()
+        return getattr(self, f"_{key}").get(key)
 
 
 __all__ = ["ContextVarsContext"]
