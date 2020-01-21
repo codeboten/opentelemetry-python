@@ -44,6 +44,8 @@ class ContextVarsContext(BaseContext):
         # setattr(self._module, f"_{key}", contextvar)
         # setattr(self, f"_{key}", contextvar)
         # async_name.set(value)
+        from pdb import set_trace
+        set_trace()
         self._contextvars[key] = ContextVar(key)
         self._contextvars[key].set(value)
         # print("sdf" + self._contextvars[key].get())

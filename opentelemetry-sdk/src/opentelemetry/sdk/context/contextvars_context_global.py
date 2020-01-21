@@ -25,6 +25,8 @@ class ContextVarsContextGlobal(BaseContext):
 
     def set(self, key: str, value: Optional["object"]) -> "BaseContext":
         """Set a value in this context"""
+        from pdb import set_trace
+        set_trace()
         async_name.set(value)
 
     def get(self, key: str) -> Optional["object"]:
