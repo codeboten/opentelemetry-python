@@ -21,7 +21,7 @@ from opentelemetry.context.base_context import BaseContext
 async_name = ContextVar("async_name")
 
 
-class ContextVarsGlobalContext(BaseContext):
+class ContextVarsContextGlobal(BaseContext):
 
     def set(self, key: str, value: Optional["object"]) -> "BaseContext":
         """Set a value in this context"""
@@ -32,4 +32,4 @@ class ContextVarsGlobalContext(BaseContext):
         return async_name.get()
 
 
-__all__ = ["ContextVarsGlobalContext"]
+__all__ = ["ContextVarsContextGlobal"]

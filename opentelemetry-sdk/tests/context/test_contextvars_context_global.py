@@ -17,16 +17,18 @@ from asyncio import gather, get_event_loop, sleep as asyncio_sleep
 from time import sleep
 from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
-import aiocontextvars
+import aiocontextvars  # noqa
 
-from opentelemetry.sdk.context.contextvars_context import ContextVarsContext
+from opentelemetry.sdk.context.contextvars_context_global import (
+    ContextVarsContextGlobal
+)
 
 
-class TestContextVarsContext(TestCase):
+class TestContextVarsContextGlobal(TestCase):
 
-    def test_async(self):
+    def test_async_global(self):
 
-        contextvars_context = ContextVarsContext()
+        contextvars_context = ContextVarsContextGlobal()
 
         async def waiting(async_name, first_sleep, second_sleep):
 
@@ -53,9 +55,9 @@ class TestContextVarsContext(TestCase):
         loop.run_until_complete(run_waiting())
         loop.close()
 
-    def test_threading(self):
+    def test_threading_global(self):
 
-        contextvars_context = ContextVarsContext()
+        contextvars_context = ContextVarsContextGlobal()
 
         def waiting(threading_name, first_sleep, second_sleep):
 
@@ -88,9 +90,9 @@ class TestContextVarsContext(TestCase):
 
         run_waiting()
 
-    def test_futures(self):
+    def test_futures_global(self):
 
-        contextvars_context = ContextVarsContext()
+        contextvars_context = ContextVarsContextGlobal()
 
         def waiting(thread_pool_name, first_sleep, second_sleep):
 
