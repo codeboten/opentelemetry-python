@@ -17,7 +17,7 @@ from asyncio import gather, get_event_loop, sleep as asyncio_sleep
 from time import sleep
 from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
-import aiocontextvars  # noqa
+# import aiocontextvars  # noqa
 
 from opentelemetry.sdk.context.contextvars_context_global import (
     ContextVarsContextGlobal
@@ -26,7 +26,7 @@ from opentelemetry.sdk.context.contextvars_context_global import (
 
 class TestContextVarsContextGlobal(TestCase):
 
-    def test_async_global(self):
+    def test_asynsc_global(self):
 
         contextvars_context = ContextVarsContextGlobal()
 

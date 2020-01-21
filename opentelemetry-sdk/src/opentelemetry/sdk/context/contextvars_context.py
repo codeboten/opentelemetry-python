@@ -24,6 +24,7 @@ from opentelemetry.context.base_context import BaseContext
 
 class ContextVarsContext(BaseContext):
 
+    _contextvars = {}
     # _instance = None
     # _module = modules[__name__]
     # _module = __import__(__name__)
@@ -34,9 +35,6 @@ class ContextVarsContext(BaseContext):
     #
     #     return ContextVarsContext._instance
 
-    def __init__(self):
-        self._contextvars = {}
-
     def set(self, key: str, value: Optional["object"]) -> "BaseContext":
         """Set a value in this context"""
         # contextvar = ContextVar(key)
@@ -44,9 +42,9 @@ class ContextVarsContext(BaseContext):
         # setattr(self._module, f"_{key}", contextvar)
         # setattr(self, f"_{key}", contextvar)
         # async_name.set(value)
-        from pdb import set_trace
-        set_trace()
-        self._contextvars[key] = ContextVar(key)
+        if key not in self._contextvars.keys():
+            self._contextvars[key] = ContextVar(key)
+
         self._contextvars[key].set(value)
         # print("sdf" + self._contextvars[key].get())
         # globals()[key] = ContextVar(key)
