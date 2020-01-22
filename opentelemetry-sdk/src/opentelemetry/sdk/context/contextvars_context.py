@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
 from contextvars import ContextVar
 
 from opentelemetry.context.base_context import BaseContext
@@ -20,18 +19,24 @@ from opentelemetry.context.base_context import BaseContext
 
 class ContextVarsContext(BaseContext):
 
-    _contextvars = {}
+    def __init__(self):
+        self._contextvars = {}
 
-    def set(self, key: str, value: Optional["object"]) -> "BaseContext":
+    def set_value(self, key: str, value: "object"):
         """Set a value in this context"""
         if key not in self._contextvars.keys():
             self._contextvars[key] = ContextVar(key)
 
         self._contextvars[key].set(value)
 
-    def get(self, key: str) -> Optional["object"]:
+    def get_value(self, key: str) -> "object":
         """Get a value from this context"""
         return self._contextvars[key].get()
+
+    def remove_value(self, key: str) -> "object":
+        """Remove a value from this context"""
+        if key in self._contextvars.keys():
+            self._contextvars.pop(key)
 
 
 __all__ = ["ContextVarsContext"]

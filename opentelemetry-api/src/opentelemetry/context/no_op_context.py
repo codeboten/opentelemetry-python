@@ -18,17 +18,14 @@ from opentelemetry.context.base_context import BaseContext
 
 class NoOpContext(BaseContext):
 
-    def set_value(self, key: str, value: "object") -> "BaseContext":
+    def set_value(self, key: str, value: "object"):
         """Set a value in this context"""
 
     def get_value(self, key: str) -> "object":
         """Get a value from this context"""
 
-    def remove_value(self, key: str) -> "object":
+    def remove_value(self, key: str):
         """Remove a value from this context"""
-
-    def copy(self) -> "BaseContext":
-        """Return a copy of this context"""
 
 
 __all__ = ["NoOpContext"]

@@ -13,12 +13,13 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 
 class BaseContext(ABC):
 
     @abstractmethod
-    def set_value(self, key: str, value: "object") -> "BaseContext":
+    def set_value(self, key: str, value: "object"):
         """Set a value in this context"""
 
     @abstractmethod
@@ -26,12 +27,13 @@ class BaseContext(ABC):
         """Get a value from this context"""
 
     @abstractmethod
-    def remove_value(self, key: str) -> "object":
+    def remove_value(self, key: str):
         """Remove a value from this context"""
 
-    @abstractmethod
     def copy(self) -> "BaseContext":
         """Return a copy of this context"""
+
+        return deepcopy(self)
 
 
 __all__ = ["BaseContext"]
