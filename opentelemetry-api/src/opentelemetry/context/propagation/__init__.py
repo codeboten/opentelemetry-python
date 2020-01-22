@@ -13,9 +13,6 @@
 # limitations under the License.
 import typing
 
-from opentelemetry.context.base_context import BaseContext
-
-from .binaryformat import BinaryFormat
 from .httptextformat import (
     ContextT,
     DefaultHTTPExtractor,

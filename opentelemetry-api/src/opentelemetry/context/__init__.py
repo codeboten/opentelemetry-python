@@ -154,14 +154,20 @@ _CONTEXT = {
 }[environ.get("OPENTELEMETRY_CONTEXT", "contextvars")]
 
 
+def create_key(key: str) -> "object":
+    _CONTEXT.set(key, None)
+    return key
+
+
 def get_value(context: "BaseContext", key: str) -> "object":
     return context.get_value(key)
 
 
 def set_value(
-    context: "BaseContext", key: str, value: "object"
+        key: str, value: "object", context: "BaseContext" = _CONTEXT
 ) -> "BaseContext":
-    context.set_value(key, value)
+    new_context = context.copy()
+    new_context.set(key, value)
     return context
 
 
