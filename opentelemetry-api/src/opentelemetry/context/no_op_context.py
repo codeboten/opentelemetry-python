@@ -12,20 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
 
 from opentelemetry.context.base_context import BaseContext
 
 
 class NoOpContext(BaseContext):
 
-    def set(self, key: str, value: Optional["object"]) -> "BaseContext":
+    def set_value(self, key: str, value: "object") -> "BaseContext":
         """Set a value in this context"""
 
-        return self
-
-    def get(self, key: str) -> Optional["object"]:
+    def get_value(self, key: str) -> "object":
         """Get a value from this context"""
 
+    def remove_value(self, key: str) -> "object":
+        """Remove a value from this context"""
 
-__all__ = ["BaseContext"]
+    def copy(self) -> "BaseContext":
+        """Return a copy of this context"""
+
+
+__all__ = ["NoOpContext"]
