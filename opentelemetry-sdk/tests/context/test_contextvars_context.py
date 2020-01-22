@@ -18,9 +18,6 @@ from time import sleep
 from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
 
-if sys
-import aiocontextvars  # noqa
-
 from opentelemetry.sdk.context.contextvars_context import ContextVarsContext
 
 
