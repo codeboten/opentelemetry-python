@@ -12,9 +12,83 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sys import version_info
 from contextvars import ContextVar
 
 from opentelemetry.context.base_context import BaseContext
+
+if (3, 5, 3) <= version_info < (3, 7):
+    import aiocontextvars
+
+elif (3, 4) < version_info <= (3, 5, 2):
+
+    # This is copied and pasted from:
+    # https://github.com/fantix/aiocontextvars/issues/88#issuecomment-522276290
+
+    import asyncio
+    import asyncio.coroutines
+    import asyncio.futures
+    import concurrent.futures
+
+    if not hasattr(asyncio, '_get_running_loop'):
+        # noinspection PyCompatibility
+        import asyncio.events
+        from threading import local as threading_local
+
+        if not hasattr(asyncio.events, '_get_running_loop'):
+            class _RunningLoop(threading_local):
+                _loop = None
+
+            _running_loop = _RunningLoop()
+
+            def _get_running_loop():
+                return _running_loop._loop
+
+            def set_running_loop(loop):  # noqa: F811
+                _running_loop._loop = loop
+
+            def _get_event_loop():
+                current_loop = _get_running_loop()
+                if current_loop is not None:
+                    return current_loop
+                return asyncio.events.get_event_loop_policy().get_event_loop()
+
+            asyncio.events.get_event_loop = _get_event_loop
+            asyncio.events._get_running_loop = _get_running_loop
+            asyncio.events._set_running_loop = set_running_loop
+
+        asyncio._get_running_loop = asyncio.events._get_running_loop
+        asyncio._set_running_loop = asyncio.events._set_running_loop
+
+    # It needs only to be imported to activate the patching of the contextvars
+    # backport (see the comment in setup.py)
+    # noinspection PyUnresolvedReferences
+    import aiocontextvars  # noqa
+
+    def _run_coroutine_threadsafe(coro, loop):
+        """
+        Patch to create task in the same thread instead of in the callback.
+        This ensures that contextvars get copied. Python 3.7 copies contextvars
+        without this.
+        """
+        if not asyncio.coroutines.iscoroutine(coro):
+            raise TypeError('A coroutine object is required')
+        future = concurrent.futures.Future()
+        task = asyncio.ensure_future(coro, loop=loop)
+
+        def callback():
+            try:
+                # noinspection PyProtectedMember,PyUnresolvedReferences
+                asyncio.futures._chain_future(task, future)
+            except Exception as exc:
+                if future.set_running_or_notify_cancel():
+                    future.set_exception(exc)
+                raise
+
+        loop.call_soon_threadsafe(callback)
+        return future
+
+    asyncio.run_coroutine_threadsafe = _run_coroutine_threadsafe
 
 
 class ContextVarsContext(BaseContext):
