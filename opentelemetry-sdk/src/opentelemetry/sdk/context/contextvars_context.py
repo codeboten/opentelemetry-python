@@ -14,49 +14,24 @@
 
 from typing import Optional
 from contextvars import ContextVar
-# from sys import modules
 
 from opentelemetry.context.base_context import BaseContext
-
-
-# async_name = ContextVar("async_name")
 
 
 class ContextVarsContext(BaseContext):
 
     _contextvars = {}
-    # _instance = None
-    # _module = modules[__name__]
-    # _module = __import__(__name__)
-
-    # def __new__(cls):
-    #     if ContextVarsContext._instance is None:
-    #         ContextVarsContext._instance = object.__new__(cls)
-    #
-    #     return ContextVarsContext._instance
 
     def set(self, key: str, value: Optional["object"]) -> "BaseContext":
         """Set a value in this context"""
-        # contextvar = ContextVar(key)
-        # contextvar.set(value)
-        # setattr(self._module, f"_{key}", contextvar)
-        # setattr(self, f"_{key}", contextvar)
-        # async_name.set(value)
         if key not in self._contextvars.keys():
             self._contextvars[key] = ContextVar(key)
 
         self._contextvars[key].set(value)
-        # print("sdf" + self._contextvars[key].get())
-        # globals()[key] = ContextVar(key)
-        # globals()[key].set(value)
 
     def get(self, key: str) -> Optional["object"]:
         """Get a value from this context"""
-        # return getattr(self._module, f"_{key}").get(key)
-        # return getattr(self, f"_{key}").get(key)
-        # return async_name.get()
         return self._contextvars[key].get()
-        # return globals()[key].get()
 
 
 __all__ = ["ContextVarsContext"]
