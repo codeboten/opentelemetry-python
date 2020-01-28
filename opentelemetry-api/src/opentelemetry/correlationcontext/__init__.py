@@ -18,7 +18,7 @@ import string
 import typing
 from contextlib import contextmanager
 
-from opentelemetry.context import ContextAPI
+from opentelemetry.context import Context, get_value, set_value
 
 CORRELATION_CONTEXT_KEY = "correlation-context-key"
 
@@ -48,7 +48,7 @@ class CorrelationContextManager:
         return self._correlation_context.items()
 
     def get_correlation(
-        self, context: ContextAPI, name: str
+        self, context: Context, name: str
     ) -> typing.Optional[typing.Any]:
         """
         To access the value for an entry by a prior event, the Correlations API provides a
@@ -62,14 +62,15 @@ class CorrelationContextManager:
             The value of the entry matching the name
         """
         # pylint: disable=no-self-use
-        correlation_context = context.get_value(CORRELATION_CONTEXT_KEY)
+
+        correlation_context = get_value(CORRELATION_CONTEXT_KEY, context)
         if correlation_context and name in correlation_context:
             return correlation_context[name]
         return None
 
     def set_correlation(
-        self, context: ContextAPI, name: str, value: typing.Any
-    ) -> ContextAPI:
+        self, context: Context, name: str, value: typing.Any
+    ) -> Context:
         """
         To record the value for an entry, the Correlations API provides a function which takes a
         context, a name, and a value as input. Returns an updated Context which contains the new value.
@@ -83,11 +84,11 @@ class CorrelationContextManager:
         """
         new_correlation_context = self._copy()
         new_correlation_context[name] = value
-        return context.set_value(
-            CORRELATION_CONTEXT_KEY, new_correlation_context
+        return set_value(
+            CORRELATION_CONTEXT_KEY, new_correlation_context, context
         )
 
-    def remove_correlation(self, context: ContextAPI, name: str) -> ContextAPI:
+    def remove_correlation(self, context: Context, name: str) -> Context:
         """
         To delete an entry, the Correlations API provides a function which takes a context and a name as
         input. Returns an updated Context which no longer contains the selected Name.
@@ -101,11 +102,11 @@ class CorrelationContextManager:
         new_correlation_context = self._copy()
         if name in new_correlation_context:
             del new_correlation_context[name]
-        return context.set_value(
-            CORRELATION_CONTEXT_KEY, new_correlation_context
+        return set_value(
+            CORRELATION_CONTEXT_KEY, new_correlation_context, context
         )
 
-    def clear_correlations(self, context: ContextAPI) -> ContextAPI:
+    def clear_correlations(self, context: Context) -> Context:
         """
         To avoid sending any entries to an untrusted process, the Correlation API provides a function
         to remove all Correlations from a context. Returns an updated Context with no correlations.
@@ -116,7 +117,7 @@ class CorrelationContextManager:
             A new Context object with no correlations
         """
         # pylint: disable=no-self-use
-        return context.set_value(CORRELATION_CONTEXT_KEY, {})
+        return set_value(CORRELATION_CONTEXT_KEY, {}, context)
 
     def _copy(self) -> typing.Dict[str, typing.Any]:
         """

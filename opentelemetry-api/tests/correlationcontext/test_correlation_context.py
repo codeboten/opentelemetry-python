@@ -15,12 +15,12 @@
 import unittest
 
 from opentelemetry import correlationcontext
-from opentelemetry.context import ContextAPI
+from opentelemetry.context import get_current
 
 
 class TestCorrelationContextManager(unittest.TestCase):
     def setUp(self):
-        self.context = ContextAPI()
+        self.context = get_current()
         self.manager = correlationcontext.CorrelationContextManager()
         self.manager.set_correlation(
             self.context, "client-version", "initial.version"

@@ -422,7 +422,8 @@ class TracerSource(abc.ABC):
                 (usually just ``__name__``).
 
                 This should *not* be the name of the module that is
-                instrumented but the name of the module doing the instrumentation.
+                instrumented but the name of the module doing the
+                instrumentation.
                 E.g., instead of ``"requests"``, use
                 ``"opentelemetry.ext.http_requests"``.
 
@@ -652,7 +653,7 @@ def tracer_source() -> TracerSource:
 
     If there isn't one set yet, a default will be loaded.
     """
-    global _TRACER_SOURCE, _TRACER_SOURCE_FACTORY  # pylint:disable=global-statement
+    global _TRACER_SOURCE, _TRACER_SOURCE_FACTORY  # pylint:disable=global-statement  # noqa
 
     if _TRACER_SOURCE is None:
         # pylint:disable=protected-access
