@@ -50,7 +50,7 @@ class TestContext(unittest.TestCase):
         self.assertEqual(None, context.get_value("a"))
 
     def test_context_is_immutable(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             # ensure a context
             context.get_current()["test"] = "cant-change-immutable"
 

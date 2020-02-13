@@ -17,8 +17,24 @@ from abc import ABC, abstractmethod
 
 
 class Context(typing.Dict[str, object]):
-    def __setitem__(self, key: str, value: object) -> None:
-        raise ValueError
+    """ An immutable dictionary. Implemented as in PEP 351:
+        https://www.python.org/dev/peps/pep-0351/
+    """
+
+    def __hash__(self) -> None:
+        return id(self)
+
+    def _immutable(self, *args, **kws):
+        # pylint: disable=no-self-use
+        raise TypeError("object is immutable")
+
+    __setitem__ = _immutable
+    __delitem__ = _immutable
+    clear = _immutable
+    update = _immutable
+    setdefault = _immutable
+    pop = _immutable
+    popitem = _immutable
 
 
 class RuntimeContext(ABC):
