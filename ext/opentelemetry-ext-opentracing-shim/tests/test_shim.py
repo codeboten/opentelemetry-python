@@ -22,8 +22,8 @@ import opentracing
 
 import opentelemetry.ext.opentracing_shim as opentracingshim
 from opentelemetry import propagators, trace
-from opentelemetry.context.propagation.httptextformat import HTTPTextFormat
 from opentelemetry.ext.opentracing_shim import util
+from opentelemetry.propagation.httptextformat import HTTPTextFormat
 from opentelemetry.sdk.trace import TracerSource
 
 

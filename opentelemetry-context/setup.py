@@ -1,4 +1,4 @@
-# Copyright 2019, OpenTelemetry Authors
+# Copyright 2020, OpenTelemetry Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@ import setuptools
 
 BASE_DIR = os.path.dirname(__file__)
 VERSION_FILENAME = os.path.join(
-    BASE_DIR, "src", "opentelemetry", "util", "version.py"
+    BASE_DIR, "src", "opentelemetry", "context", "version.py"
 )
 PACKAGE_INFO = {}
 with open(VERSION_FILENAME) as f:
     exec(f.read(), PACKAGE_INFO)
 
 setuptools.setup(
-    name="opentelemetry-api",
+    name="opentelemetry-context",
     version=PACKAGE_INFO["__version__"],
     author="OpenTelemetry Authors",
     author_email="cncf-opentelemetry-contributors@lists.cncf.io",
@@ -40,13 +40,13 @@ setuptools.setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    description="OpenTelemetry Python API",
+    description="OpenTelemetry Python Context",
     include_package_data=True,
     long_description=open("README.rst").read(),
     long_description_content_type="text/x-rst",
     install_requires=[
         "typing; python_version<'3.5'",
-        "opentelemetry-context==0.4.dev0",
+        "aiocontextvars; python_version<'3.7'",
     ],
     extras_require={},
     license="Apache-2.0",
@@ -56,7 +56,17 @@ setuptools.setup(
     ),
     url=(
         "https://github.com/open-telemetry/opentelemetry-python"
-        "/tree/master/opentelemetry-api"
+        "/tree/master/opentelemetry-context"
     ),
     zip_safe=False,
+    entry_points={
+        "opentelemetry_context": [
+            "contextvars_context = "
+            "opentelemetry.context.contextvars_context:"
+            "ContextVarsRuntimeContext",
+            "threadlocal_context = "
+            "opentelemetry.context.threadlocal_context:"
+            "ThreadLocalRuntimeContext",
+        ]
+    },
 )

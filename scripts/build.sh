@@ -15,7 +15,7 @@ BASEDIR=$(dirname $(readlink -f $(dirname $0)))
   mkdir -p dist
   rm -rf dist/*
 
- for d in opentelemetry-api/ opentelemetry-sdk/ ext/*/ ; do
+ for d in opentelemetry-context/ opentelemetry-api/ opentelemetry-sdk/ ext/*/ ; do
    (
      cd "$d"
      python3 setup.py --verbose bdist_wheel --dist-dir "$BASEDIR/dist/"

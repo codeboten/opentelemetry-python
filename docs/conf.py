@@ -16,6 +16,7 @@ from os import listdir
 from os.path import isdir, join
 
 source_dirs = [
+    os.path.abspath("../opentelemetry-context/src/"),
     os.path.abspath("../opentelemetry-api/src/"),
     os.path.abspath("../opentelemetry-sdk/src/"),
 ]
