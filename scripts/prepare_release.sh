@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=`git rev-parse --abbrev-ref HEAD | cut -f 2 -d v`
+VERSION=`git rev-parse --abbrev-ref HEAD | cut -f 2 -d /`
 echo "Using version ${VERSION}"
 
 # check the version matches expected versioning e.g
@@ -60,4 +60,4 @@ update_version_file
 update_changelog
 
 git commit -m "updating changelogs and version to ${VERSION}"
-git push origin v${VERSION}
+git push origin release/${VERSION}
