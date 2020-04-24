@@ -22,7 +22,7 @@ function update_version_file() {
             continue
         fi
         # update version.py
-        sed -i '' 's/__version__.*/__version__ = "'${VERSION}'"/g' ${f};
+        perl -i -pe "s/__version__.*/__version__ = \"${VERSION}\"/g" ${f};
         git add ${f};
     done
     if [ ${errors} != 0 ]; then
