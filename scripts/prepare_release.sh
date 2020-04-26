@@ -59,6 +59,6 @@ function update_changelog() {
 update_version_file
 update_changelog
 
-git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
-git pull github ${GITHUB_REF} --ff-only
+git config --local user.email "action@github.com"
+git config --local user.name "GitHub Action"
 git commit -m "updating changelogs and version to ${VERSION}"
