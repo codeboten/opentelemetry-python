@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=`git rev-parse --abbrev-ref HEAD | cut -f 2 -d /`
+VERSION=`echo $1 | cut -f 2 -d /`
 echo "Using version ${VERSION}"
 
 # check the version matches expected versioning e.g

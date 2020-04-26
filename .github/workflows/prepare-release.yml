@@ -6,7 +6,7 @@ name: prepare-release
 # events but only for the master branch
 on:
   push:
-    branches: [ 'release/*' ]
+    tags: [ 'release/*' ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -20,9 +20,16 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
     - name: Prepare the release
       run: |
-        ./scripts/prepare_release.sh
+        ./scripts/prepare_release.sh ${{ steps.get_version.outputs.VERSION }}
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v2.7.0
+      # team-reviewers: TODO: set this
+      branch: ${{ steps.get_version.outputs.VERSION }}
+      title: '[pre-release] Update changelogs, version [${{ steps.get_version.outputs.VERSION }}]'
