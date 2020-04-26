@@ -30,6 +30,7 @@ jobs:
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v2.7.0
-      # team-reviewers: TODO: set this
-      branch: ${{ steps.get_version.outputs.VERSION }}
-      title: '[pre-release] Update changelogs, version [${{ steps.get_version.outputs.VERSION }}]'
+      with:
+        branch: ${{ steps.get_version.outputs.VERSION }}
+        title: '[pre-release] Update changelogs, version [${{ steps.get_version.outputs.VERSION }}]'
+        # team-reviewers: TODO: set this
