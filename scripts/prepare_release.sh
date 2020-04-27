@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 VERSION=`echo $1 | awk -F "/" '{print $NF}'`
 echo "Using version ${VERSION}"
@@ -24,6 +25,7 @@ function update_version_file() {
         # update version.py
         perl -i -pe "s/__version__.*/__version__ = \"${VERSION}\"/g" ${f};
         git add ${f};
+        echo "Updating ${f}"
     done
     if [ ${errors} != 0 ]; then
         echo "::set-output name=version_updated::0"
@@ -47,6 +49,7 @@ function update_changelog() {
             # update CHANGELOG.md
             perl -i -pe 's/## Unreleased.*/## Unreleased\n\n## '${VERSION}'/' ${f};
             git add ${f};
+            echo "Updating ${f}"
         else
             echo "Skipping ${f}, no changes detected"
         fi
