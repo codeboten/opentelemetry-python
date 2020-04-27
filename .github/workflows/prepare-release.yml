@@ -21,9 +21,6 @@ jobs:
       id: update
       run: |
         ./scripts/prepare_release.sh ${{ steps.get_version.outputs.VERSION }}
-    
-    - name: Print output
-      run: echo ${{ steps.update.outputs.version_updated}}
 
     - name: Create Pull Request
       id: create-pr
