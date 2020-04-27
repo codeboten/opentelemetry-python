@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=`echo $1 | cut -f 2 -d /`
+VERSION=`echo $1 | awk -F "/" '{print $NF}'`
 echo "Using version ${VERSION}"
 
 # check the version matches expected versioning e.g
