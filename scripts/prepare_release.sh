@@ -27,7 +27,6 @@ function update_version_file() {
         echo "Updating ${f}"
     done
     if [ ${errors} != 0 ]; then
-        set -e
         echo "::set-output name=version_updated::0"
         exit 0
     fi
@@ -56,7 +55,6 @@ function update_changelog() {
         fi
     done
     if [ ${errors} != 0 ]; then
-        set -e
         echo "::set-output name=version_updated::0"
         exit 0
     fi
@@ -68,5 +66,4 @@ update_changelog
 git config --local user.email "action@github.com"
 git config --local user.name "GitHub Action"
 git commit -m "updating changelogs and version to ${VERSION}"
-set -e
-echo "::set-output name=version_updated::1"
+echo "::set-output name=FOO::BAR"
