@@ -24,13 +24,13 @@ jobs:
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
-    - name: Check version if already set
-      run: echo ::set-output name=VERSION::./
-
     - name: Prepare the release
       id: update
       run: |
         ./scripts/prepare_release.sh ${{ steps.get_version.outputs.VERSION }}
+
+    - name: Checking output
+      run: echo ${{ steps.update.outputs.version_update }}
 
     - name: Create Pull Request
       id: create-pr
