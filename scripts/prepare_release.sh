@@ -66,4 +66,4 @@ update_changelog
 git config --local user.email "action@github.com"
 git config --local user.name "GitHub Action"
 git commit -m "updating changelogs and version to ${VERSION}"
-echo "::set-output name=FOO::BAR"
+echo "::set-output name=version_updated::1"
