@@ -26,16 +26,11 @@ jobs:
 
     - name: Check version if already set
       run: echo ::set-output name=VERSION::./
-      
 
     - name: Prepare the release
       id: update
       run: |
         ./scripts/prepare_release.sh ${{ steps.get_version.outputs.VERSION }}
-      outputs:
-        version_updated:
-          description: 1 if the version has been updated, 0 otherwise
-
 
     - name: Create Pull Request
       id: create-pr
