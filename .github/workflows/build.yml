@@ -26,4 +26,4 @@ jobs:
         pip install tox-travis
     - name: Test with tox
       run: |
-        tox
+        tox -e py
