@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-16.04
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8, pypy3]
+        python-version: [3.7, 3.8, pypy3]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,4 +25,4 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Test with tox
-      run: tox
+      run: tox -p auto
