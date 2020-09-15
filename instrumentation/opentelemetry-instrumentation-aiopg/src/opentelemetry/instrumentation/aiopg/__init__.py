@@ -91,6 +91,10 @@ class AiopgInstrumentor(BaseInstrumentor):
         wrappers.unwrap_connect()
         wrappers.unwrap_create_pool()
 
+    @property
+    def _instrumented_library(self):
+        return "aiopg"
+
     # pylint:disable=no-self-use
     def instrument_connection(self, connection):
         """Enable instrumentation in a aiopg connection.

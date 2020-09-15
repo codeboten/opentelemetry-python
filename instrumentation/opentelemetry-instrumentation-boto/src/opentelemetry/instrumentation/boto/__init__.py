@@ -107,6 +107,10 @@ class BotoInstrumentor(BaseInstrumentor):
         unwrap(AWSQueryConnection, "make_request")
         unwrap(AWSAuthConnection, "make_request")
 
+    @property
+    def _instrumented_library(self):
+        return "boto"
+
     def _common_request(  # pylint: disable=too-many-locals
         self,
         args_name,

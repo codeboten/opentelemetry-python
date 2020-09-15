@@ -135,6 +135,10 @@ class PyramidInstrumentor(BaseInstrumentor):
         """"Disable Pyramid instrumentation"""
         unwrap(Configurator, "__init__")
 
+    @property
+    def _instrumented_library(self):
+        return "pyramid"
+
     # pylint:disable=no-self-use
     def instrument_config(self, config):
         """Enable instrumentation in a Pyramid configurator.

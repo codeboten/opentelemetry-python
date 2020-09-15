@@ -82,6 +82,10 @@ class MySQLInstrumentor(BaseInstrumentor):
         """"Disable MySQL instrumentation"""
         dbapi.unwrap_connect(mysql.connector, "connect")
 
+    @property
+    def _instrumented_library(self):
+        return "mysql-connector-python"
+
     # pylint:disable=no-self-use
     def instrument_connection(self, connection):
         """Enable instrumentation in a MySQL connection.

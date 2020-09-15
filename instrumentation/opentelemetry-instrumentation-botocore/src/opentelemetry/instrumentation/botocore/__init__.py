@@ -88,6 +88,10 @@ class BotocoreInstrumentor(BaseInstrumentor):
     def _uninstrument(self, **kwargs):
         unwrap(BaseClient, "_make_api_call")
 
+    @property
+    def _instrumented_library(self):
+        return "botocore"
+
     def _patched_api_call(self, original_func, instance, args, kwargs):
 
         endpoint_name = deep_getattr(instance, "_endpoint._endpoint_prefix")

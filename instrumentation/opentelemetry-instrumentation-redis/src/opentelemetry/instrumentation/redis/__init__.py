@@ -160,3 +160,7 @@ class RedisInstrumentor(BaseInstrumentor):
             unwrap(redis.Redis, "pipeline")
             unwrap(redis.client.Pipeline, "execute")
             unwrap(redis.client.Pipeline, "immediate_execute_command")
+
+    @property
+    def _instrumented_library(self):
+        return "redis"

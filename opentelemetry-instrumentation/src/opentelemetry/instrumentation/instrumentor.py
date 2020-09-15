@@ -19,6 +19,9 @@ OpenTelemetry Base Instrumentor
 
 from abc import ABC, abstractmethod
 from logging import getLogger
+from typing import Dict
+
+import pkg_resources
 
 _LOG = getLogger(__name__)
 
@@ -53,6 +56,20 @@ class BaseInstrumentor(ABC):
     @abstractmethod
     def _uninstrument(self, **kwargs):
         """Uninstrument the library"""
+
+    @property
+    @abstractmethod
+    def _instrumented_library(self) -> str:
+        """Returns the name of the instrumented library"""
+
+    def instrumentated_library_attributes(self) -> Dict[str, str]:
+        """Returns the name and version of the instrumented library"""
+        return {
+            "instrumented.library": self._instrumented_library(),
+            "instrumented.version": pkg_resources.get_distribution(
+                self._instrumented_library()
+            ).version,
+        }
 
     def instrument(self, **kwargs):
         """Instrument the library

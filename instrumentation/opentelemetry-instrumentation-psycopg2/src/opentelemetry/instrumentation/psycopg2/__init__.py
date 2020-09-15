@@ -83,6 +83,10 @@ class Psycopg2Instrumentor(BaseInstrumentor):
         """"Disable Psycopg2 instrumentation"""
         dbapi.unwrap_connect(psycopg2, "connect")
 
+    @property
+    def _instrumented_library(self):
+        return "psycopg2"
+
     # pylint:disable=no-self-use
     def instrument_connection(self, connection):
         """Enable instrumentation in a Psycopg2 connection.
