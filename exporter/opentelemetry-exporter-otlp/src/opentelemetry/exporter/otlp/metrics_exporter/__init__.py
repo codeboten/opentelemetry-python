@@ -15,6 +15,7 @@
 """OTLP Metrics Exporter"""
 
 import logging
+import time
 from typing import List, Sequence, Type, TypeVar
 
 # pylint: disable=duplicate-code
@@ -54,40 +55,39 @@ from opentelemetry.sdk.metrics.export import (
     MetricsExporter,
     MetricsExportResult,
 )
+from opentelemetry.sdk.metrics.export.aggregate import ValueObserverAggregator
 
 logger = logging.getLogger(__name__)
 DataPointT = TypeVar("DataPointT", IntDataPoint, DoubleDataPoint)
+
+
+def _labels_to_string_key_values(labels):
+    string_key_values = []
+
+    for label_key, label_value in labels:
+        string_key_values.append(
+            StringKeyValue(key=label_key, value=label_value)
+        )
+    return string_key_values
 
 
 def _get_data_points(
     sdk_metric: MetricRecord, data_point_class: Type[DataPointT]
 ) -> List[DataPointT]:
 
-    data_points = []
+    if isinstance(sdk_metric.aggregator, ValueObserverAggregator):
+        value = sdk_metric.aggregator.current
+    else:
+        value = sdk_metric.aggregator.checkpoint
 
-    for (
-        label,
-        bound_counter,
-    ) in sdk_metric.instrument.bound_instruments.items():
-
-        string_key_values = []
-
-        for label_key, label_value in label:
-            string_key_values.append(
-                StringKeyValue(key=label_key, value=label_value)
-            )
-
-        for view_data in bound_counter.view_datas:
-
-            if view_data.labels == label:
-
-                data_points.append(
-                    data_point_class(
-                        labels=string_key_values,
-                        value=view_data.aggregator.current,
-                    )
-                )
-                break
+    data_points = [
+        data_point_class(
+            labels=_labels_to_string_key_values(sdk_metric.labels),
+            value=value,
+            start_time_unix_nano=int(round(time.time() * 1000000000)),
+            time_unix_nano=int(round(time.time() * 1000000000)),
+        )
+    ]
 
     return data_points
 
