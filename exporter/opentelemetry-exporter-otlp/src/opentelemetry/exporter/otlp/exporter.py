@@ -169,6 +169,11 @@ class OTLPExporterMixin(
             insecure = False
 
         self._headers = headers or Configuration().EXPORTER_OTLP_HEADERS
+        if isinstance(self._headers, str):
+            self._headers = tuple(
+                tuple(x.split("=")) for x in self._headers.split(",")
+            )
+
         self._timeout = (
             timeout
             or Configuration().EXPORTER_OTLP_TIMEOUT
