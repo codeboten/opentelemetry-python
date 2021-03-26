@@ -11,12 +11,37 @@ python3 -m pip install --upgrade pip setuptools wheel
 BASEDIR=$(dirname $(readlink -f $(dirname $0)))
 DISTDIR=dist
 
+
+if [ -z $1 ]; then
+  echo "missing argument"
+  echo "./build.sh [prerelease|ga]"
+  exit 1
+fi
+
+if [ $1 == "ga" ]; then
+  PACKAGES=$(cat <<DIRS
+  opentelemetry-api/
+  opentelemetry-sdk/
+  opentelemetry-proto/
+  exporter/*/
+  propagator/*/
+DIRS
+)
+elif [ $1 == "prerelease" ]; then
+  PACKAGES=$(cat <<DIRS
+  opentelemetry-instrumentation/
+  opentelemetry-distro/
+  shim/*/
+DIRS
+)
+fi
+
 (
   cd $BASEDIR
   mkdir -p $DISTDIR
   rm -rf $DISTDIR/*
 
- for d in opentelemetry-api/ opentelemetry-sdk/ opentelemetry-instrumentation/ opentelemetry-proto/ opentelemetry-distro/ exporter/*/ shim/*/ propagator/*/; do
+ for d in $PACKAGES; do
    (
      echo "building $d"
      cd "$d"
