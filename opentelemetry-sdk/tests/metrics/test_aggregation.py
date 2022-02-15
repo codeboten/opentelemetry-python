@@ -165,12 +165,16 @@ class TestSynchronousSumAggregation(TestCase):
 
         asynchronous_sum_aggregation.aggregate(measurement(1))
         first_sum = asynchronous_sum_aggregation.collect()
+        sum_aggregation.aggregate(measurement(1))
+        first_sum = sum_aggregation.collect()
 
         self.assertEqual(first_sum.value, 1)
         self.assertTrue(first_sum.is_monotonic)
 
         asynchronous_sum_aggregation.aggregate(measurement(1))
         second_sum = asynchronous_sum_aggregation.collect()
+        sum_aggregation.aggregate(measurement(1))
+        second_sum = sum_aggregation.collect()
 
         self.assertEqual(second_sum.value, 2)
         self.assertTrue(second_sum.is_monotonic)
