@@ -68,7 +68,7 @@ class _ViewInstrumentMatch:
 
         if attributes not in self._attributes_aggregation.keys():
             with self._lock:
-                self._attributes_aggregation[attributes] = self._aggregation()
+                self._attributes_aggregation[attributes] = self._aggregation
 
         self._attributes_aggregation[attributes].aggregate(measurement)
 
@@ -105,8 +105,6 @@ class _ViewInstrumentMatch:
                         resource=self._resource,
                         unit=self._unit,
                         point=_convert_aggregation_temporality(
-                            previous_point,
-                            current_point,
-                            temporality,
+                            previous_point, current_point, temporality,
                         ),
                     )

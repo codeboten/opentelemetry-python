@@ -16,12 +16,20 @@ from threading import RLock
 from typing import Dict, Iterable, List
 
 from opentelemetry._metrics.instrument import Instrument
-from opentelemetry.sdk._metrics.aggregation import AggregationTemporality, LastValueAggregation
+from opentelemetry.sdk._metrics.aggregation import (
+    AggregationTemporality,
+    ExplicitBucketHistogramAggregation,
+    LastValueAggregation,
+    SumAggregation,
+)
 from opentelemetry.sdk._metrics.measurement import Measurement
 from opentelemetry.sdk._metrics.point import Metric
+from opentelemetry._metrics.instrument import Counter, Histogram
 from opentelemetry.sdk._metrics.sdk_configuration import SdkConfiguration
 from opentelemetry.sdk._metrics.view import View
-from opentelemetry.sdk._metrics._view_instrument_match import _ViewInstrumentMatch
+from opentelemetry.sdk._metrics._view_instrument_match import (
+    _ViewInstrumentMatch,
+)
 
 
 class MetricReaderStorage:
@@ -30,7 +38,9 @@ class MetricReaderStorage:
     def __init__(self, sdk_config: SdkConfiguration) -> None:
         self._lock = RLock()
         self._sdk_config = sdk_config
-        self._view_instrument_match: Dict[Instrument, List[_ViewInstrumentMatch]] = {}
+        self._view_instrument_match: Dict[
+            Instrument, List[_ViewInstrumentMatch]
+        ] = {}
 
     def _get_or_init_view_instrument_match(
         self, instrument: Instrument
@@ -65,14 +75,33 @@ class MetricReaderStorage:
 
             # if no view targeted the instrument, use the default
             if not matches:
+                if isinstance(instrument, Counter):
+                    agg = SumAggregation(True, AggregationTemporality.DELTA)
+                elif isinstance(instrument, Histogram):
+                    agg = ExplicitBucketHistogramAggregation(
+                        boundaries=[
+                            0.0,
+                            10.0,
+                            50.0,
+                            100.0,
+                            250.0,
+                            500.0,
+                            1000.0,
+                            2500.0,
+                            5000.0,
+                            10000.0,
+                        ]
+                    )
+                else:
+                    agg = LastValueAggregation()
                 matches.append(
                     _ViewInstrumentMatch(
                         resource=self._sdk_config.resource,
-                            instrumentation_info=None,
-                            aggregation=LastValueAggregation, # TODO: this needs to be set to the aggregation on the instrument
-                            unit=instrument.unit,
-                            description=instrument.description,
-                            name=instrument.name,
+                        instrumentation_info=None,
+                        aggregation=agg,  # TODO: this needs to be set to the aggregation on the instrument
+                        unit=instrument.unit,
+                        description=instrument.description,
+                        name=instrument.name,
                     )
                 )
             self._view_instrument_match[instrument] = matches
