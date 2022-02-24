@@ -15,16 +15,11 @@
 from threading import RLock
 from typing import Dict, Iterable, List
 
-from opentelemetry._metrics.instrument import Counter, Histogram, Instrument
+from opentelemetry._metrics.instrument import Instrument
 from opentelemetry.sdk._metrics._view_instrument_match import (
     _ViewInstrumentMatch,
 )
-from opentelemetry.sdk._metrics.aggregation import (
-    AggregationTemporality,
-    ExplicitBucketHistogramAggregation,
-    LastValueAggregation,
-    SumAggregation,
-)
+from opentelemetry.sdk._metrics.aggregation import AggregationTemporality
 from opentelemetry.sdk._metrics.measurement import Measurement
 from opentelemetry.sdk._metrics.point import Metric
 from opentelemetry.sdk._metrics.sdk_configuration import SdkConfiguration
@@ -58,34 +53,29 @@ class MetricReaderStorage:
             matches = []
             for view in self._sdk_config.views:
                 if view.match(instrument):
-                    # Note: if a view matches multiple instruments, this will create a separate
-                    # _ViewInstrumentMatch per instrument. If the user's View configuration includes a
-                    # name, this will cause multiple conflicting output streams.
                     matches.append(
                         _ViewInstrumentMatch(
                             name=view.name or instrument.name,
                             resource=self._sdk_config.resource,
                             instrumentation_info=None,
-                            aggregation=view.aggregation,
+                            aggregation=(
+                                view.aggregation
+                                or instrument._get_aggregation()
+                            ),
                             unit=instrument.unit,
-                            description=view.description,
+                            description=(
+                                view.description or instrument.description
+                            ),
                         )
                     )
 
             # if no view targeted the instrument, use the default
             if not matches:
-                # TODO: the logic to select aggregation could be moved
-                if isinstance(instrument, Counter):
-                    agg = SumAggregation(True, AggregationTemporality.DELTA)
-                elif isinstance(instrument, Histogram):
-                    agg = ExplicitBucketHistogramAggregation()
-                else:
-                    agg = LastValueAggregation()
                 matches.append(
                     _ViewInstrumentMatch(
                         resource=self._sdk_config.resource,
                         instrumentation_info=None,
-                        aggregation=agg,
+                        aggregation=instrument._get_aggregation(),
                         unit=instrument.unit,
                         description=instrument.description,
                         name=instrument.name,
