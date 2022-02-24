@@ -55,17 +55,17 @@ class MetricReaderStorage:
                 if view.match(instrument):
                     matches.append(
                         _ViewInstrumentMatch(
-                            name=view.name or instrument.name,
+                            name=view._name or instrument.name,
                             resource=self._sdk_config.resource,
                             instrumentation_info=None,
                             aggregation=(
-                                view.aggregation
+                                view._aggregation
                                 # pylint: disable=protected-access
-                                or instrument._get_aggregation()
+                                or instrument._create_aggregation()
                             ),
                             unit=instrument.unit,
                             description=(
-                                view.description or instrument.description
+                                view._description or instrument.description
                             ),
                         )
                     )
@@ -77,7 +77,7 @@ class MetricReaderStorage:
                         resource=self._sdk_config.resource,
                         instrumentation_info=None,
                         # pylint: disable=protected-access
-                        aggregation=instrument._get_aggregation(),
+                        aggregation=instrument._create_aggregation(),
                         unit=instrument.unit,
                         description=instrument.description,
                         name=instrument.name,

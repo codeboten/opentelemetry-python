@@ -119,8 +119,7 @@ class View:
     # pylint: disable=too-many-return-statements
     # pylint: disable=too-many-branches
     @final
-    def _match(self, instrument: Instrument) -> bool:
-
+    def match(self, instrument: Instrument) -> bool:
         if self._instrument_type is not None:
             if not isinstance(instrument, self._instrument_type):
                 return False
