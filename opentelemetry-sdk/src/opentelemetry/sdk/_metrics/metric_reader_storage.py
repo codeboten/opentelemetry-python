@@ -60,6 +60,7 @@ class MetricReaderStorage:
                             instrumentation_info=None,
                             aggregation=(
                                 view.aggregation
+                                # pylint: disable=protected-access
                                 or instrument._get_aggregation()
                             ),
                             unit=instrument.unit,
@@ -75,6 +76,7 @@ class MetricReaderStorage:
                     _ViewInstrumentMatch(
                         resource=self._sdk_config.resource,
                         instrumentation_info=None,
+                        # pylint: disable=protected-access
                         aggregation=instrument._get_aggregation(),
                         unit=instrument.unit,
                         description=instrument.description,
