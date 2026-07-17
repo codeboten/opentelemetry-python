@@ -54,6 +54,8 @@ def get_test_job_datas(tox_envs: list, operating_systems: list) -> list:
         "py313": "3.13",
         "py314": "3.14",
         "py314t": "3.14t",
+        "py315": "3.15",
+        "py315t": "3.15t",
     }
 
     test_job_datas = []
